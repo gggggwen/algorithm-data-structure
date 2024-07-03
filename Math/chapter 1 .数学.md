@@ -62,8 +62,72 @@ int gcd(int n ,int m)
 ```c++
 int gcd(int n ,int m)
  {
-   if(n==0) return n;
+   if(m==0) return n;
    else return(gcd(m,n%m));
  }
 ```
 
+
+
+___
+
+
+
+## 2.爆int(整数溢出)
+
+###  leeetcode.7整数反转
+
+https://leetcode.cn/problems/reverse-integer/description/
+
+<img src="./image-20240703112804808.png" alt="image-20240703112804808" style="zoom:67%;" />
+
+####    鄙人在一开始解题时犯的错误：
+
+1. 没有想到用一个sign来记录x的正负，导致后面需要重复确认x的正负
+2. 本来想用temp来承接|x| ,但是没有想到 **|-2^31|会直接导致整型溢出**!! 
+3. 没有考虑到在进行运算的过程中如果出现**中间值大于int的范围**,也会发生整型溢出
+
+   题目要求：若反转后超出int范围直接返回0
+
+```c++
+if(sign<0 && res*10+temp< INT_MIN) return 0 ; //其中temp为当前位上的数值[0,9]
+if (sign >0 && res*10 -temp>INT_MAX) return 0;
+```
+
+这样写确实满足了如果说res将要转化的值将要超出int范围 ,直接return 0 ;
+
+**但是!!! ,有没有考虑到在res*10本身也有可能发生爆int!!!**即在运算过程中发生整数溢出。
+
+解决方案: **运算右移即可**
+
+```c++
+if(sign<0 && res< (INT_MIN+temp)/10） return 0 ; //其中temp为当前位上的数值[0,9]
+if(sign >0 && res> (INT_MAX-temp)/10) return 0;
+```
+
+####     题解:
+
+```c++
+class Solution {
+public:
+    int reverse(int x) {
+          int res =0
+          int sign = (x>0)? 1:-1;
+          while(x!=0) //x<0也可以进行取余运算
+          {
+              int temp = sign*(x%10) //sign 保证了temp只反映位上数值大小[0.9]
+              if(sign<0 &&　res< (INT_MIN+temp)/10） return 0 ;
+              if(sign >0 && res> (INT_MAX-temp)/10) return 0 ;
+              x/=10;
+              res = res*10 +sign*temp //因为res为负数 实际上是减去一个temp
+          }
+          return res;
+    }
+};
+```
+
+####     收获:
+
+- 运算过程中发生整数溢出,如果需要比较可以**考虑算术右移**
+- sign表示输入的正负,还可以方便后续赋值操作!!
+- 负数也可以进行区取余运算
