@@ -1,3 +1,7 @@
+---
+
+---
+
 # chapter 1 .数学
 
 
@@ -34,7 +38,7 @@ $$
 
   ###  欧几里得算法：
 
-  思想：若两数为n与m（n>m),那么**k=(n-m)%GAC**也必然为其**最大公约数的整数倍**，那么**k与m的最大公约数也为GAC**
+  思想：若两数为n与m（n>m),那么**k=(n-m)**也必然为其**最大公约数的整数倍**，那么**k与m的最大公约数也为GAC**
 
   ![](C:\Users\32939\Desktop\github_repo\algorithm-data-structure\Math\README.md)
 
@@ -73,9 +77,9 @@ ___
 
 
 
-## 2.爆int(整数溢出)
+## 2. leeetcode.7*整数反转(爆int)(非常重要)*
 
-###  leeetcode.7整数反转
+###  
 
 https://leetcode.cn/problems/reverse-integer/description/
 
@@ -131,3 +135,93 @@ public:
 - 运算过程中发生整数溢出,如果需要比较可以**考虑算术右移**
 - sign表示输入的正负,还可以方便后续赋值操作!!
 - 负数也可以进行区取余运算
+
+## 3.leetcode.8[字符串转整数](https://leetcode.cn/problems/string-to-integer-atoi/description/)
+
+![image-20240704174953186](./leetcode8.png)
+
+根据题目描述,结果应当符合如下规则:
+
+- 字符串前置空格可以直接跳过。
+
+- 跳过空格后**只要对首个非空字符串识别是否为'+' '-'** ,
+
+  若为'-'则sign=-1,且索引+1 若为'+'不处理,因为默认的sign=1(记得索引+1)
+
+  若为其他字符串,交给while循环处理
+
+- while循环负责处理整数问题:
+
+  - 如果遇到非数字部分,直接跳出循环
+
+  - 如果遇到数字部分:
+
+    - res=0 且 s[index]='0': 此时跳过该字符
+
+    - 其他: 写入 (注意:写入需要判断会不会爆int!!!!处理方式与leetcode7很像),
+
+    - 注意**字符的转int型:**
+      $$
+      temp = ascii(s[index]) - ascii('0')
+      $$
+      
+
+​                                              <img src="./leetcode8process.png" alt="image-20240704175849965" style="zoom:67%;" />
+
+###             8.3.2 完整实现:
+
+```c++
+class Solution {
+    //如果读取的第一个字符后直接停止
+public:
+    int myAtoi(string s)
+    {
+           int index =0 ;
+           int sign=1;//default
+           int res =0;
+           int res_len =0;
+           int temp =0;
+           while(s[index]==' ' && index<s.length()) 
+           {index++;}
+           if(s[index]=='+') index++;
+           else if(s[index]=='-') 
+           {
+             sign=-1;
+             index++;
+           }
+           while(index <s.length())
+           {
+             if(s[index]=='+'||s[index]=='-'||s[index]=='.'
+                           ||s[index]==' '||isalpha(s[index]))                      
+             {  
+                break;
+             }
+             else if(isdigit(s[index]))
+             {
+                if(res_len==0&& s[index]=='0')
+                 {  
+                    index++;
+                    continue;
+                 }
+                else 
+                {
+                    temp = s[index]-'0';  //记录下来
+                    if(res<=(INT_MAX-temp)/10 && sign ==1)
+                          {res= res*10+temp*sign; 
+                          res_len++;}
+                    else if(res>(INT_MAX-temp)/10 && sign==1) return INT_MAX ;
+                    if(res>=(INT_MIN+temp)/10 && sign ==-1)
+                        { res = res*10+temp*sign; 
+                          res_len++;}
+                    else if(res<(INT_MIN+temp)/10&& sign ==-1) return INT_MIN;
+                }
+             }
+             index++;
+           }
+           return res;     
+    }
+};
+```
+
+
+
