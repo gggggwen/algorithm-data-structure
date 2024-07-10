@@ -168,7 +168,7 @@ public:
 
 ​                                              <img src="./leetcode8process.png" alt="image-20240704175849965" style="zoom:67%;" />
 
-###             8.3.2 完整实现:
+###             3.2 完整实现:
 
 ```c++
 class Solution {
@@ -207,7 +207,7 @@ public:
                 {
                     temp = s[index]-'0';  //记录下来
                     if(res<=(INT_MAX-temp)/10 && sign ==1)
-                          {res= res*10+temp*sign; 
+                          {res= res*10+temp*sign; //注意需要乘sign 如果不乘想留在return乘会爆int
                           res_len++;}
                     else if(res>(INT_MAX-temp)/10 && sign==1) return INT_MAX ;
                     if(res>=(INT_MIN+temp)/10 && sign ==-1)
@@ -224,4 +224,224 @@ public:
 ```
 
 
+
+## 4.二分法
+
+
+
+### 4.1 二分查找  [leetcode.704](https://leetcode.cn/problems/binary-search/description/) 
+
+
+
+![image-20240705152022378](./image-20240705152022378.png)
+
+- 当进行二分查找时需要明确区间范围的开与闭,这样在编代码时,才能明确各种比较的写法:
+
+- 二者对比:
+
+  ```c++
+  int search()
+  {
+      int left = 0 , right = numsSize;
+      int res =0;
+      int mid ;
+      while(left<=right)
+      {
+          mid = (left+right)/2 ;//这里无需考虑爆int情况 因为索引小于INT_MAX
+          if(nums[mid] >target)
+          {
+              right = mid-1;    
+          }
+          else if(nums[mid]<target)
+          {
+              left = mid+1;
+          }
+          else return mid;
+      }
+      /*左闭右开
+      while(left<right)
+      {
+        if(nums[mid]<target)
+        {
+           right = mid;
+        }
+        else if(nums[mid]<target)
+          {
+              left = mid+1;
+          }
+        else return mid;
+      }
+      */
+      return -1
+  }
+  ```
+
+- 其实只要注意到while循环内部的条件实际上指的是左右边界应当使得**区间有效**!!
+
+  递归写法(可以课后实现一下)
+
+
+
+### 4.2 二分查找的变式[leetcode.69](https://leetcode.cn/problems/sqrtx/)
+
+<img src="./image-20240705160735785.png" alt="image-20240705160735785" style="zoom:67%;" />
+
+
+
+```c++
+class Solution {
+public:
+    int mySqrt(int x) {
+       int mid ;
+       int left =0 ,right = x ;
+       int ans ;
+       while(left<=right)
+       {
+          //在本题中中间数就是索引
+          mid = left+ (right - left)/2 ; //很细节防止爆int
+          if((long long)mid*mid <= x)
+          {
+             ans = mid;//结果暂存
+             left = mid+1;
+          }
+          else 
+          {
+            right = mid-1;
+          }
+       } 
+       return ans;
+    }
+};
+```
+
+- ##### 最重要的是理解while循环内if((long long )mid*mid <=x)
+
+  - long long 类型强制转换防止爆int
+
+  - **mid *mid <= x**? why?
+
+    很容易知道: 最终结果ans的平方要么会等于x 要么会小于x(只取了x开平方的整数部分)。 因此在if内部需要**对ans进行赋值操作**。
+
+    我们设想一下:假设某一次mid正好指向了所需要的ans那么 ,执行第一次边界变换:left=mid+1   **由于此后,只会存在mid的平方大于x的情况,**因此在最后会有**right<left**导致循环结束 return ans
+
+  
+
+### 4.2快速幂(二分加速)
+
+- 适用场景: 一般是求a^b ,且题目会给一个数字让你求出a^b对其求余的结果,如果说直接暴力计算,不说会造成高时间成本,还会有**整数溢出的风险**
+
+​    这时二分加速就派上了用场。
+
+   求出a^b的二分加速方法(不考虑爆int的情况好吧,且a>=1, b>0)
+
+```c++
+int b_speed_up(int a ,int b)
+{
+    int res =1;
+    if(b==0) return 1;
+    while(b>0)
+    {
+        if(b%2>0) res*= a ;
+        else 
+        {
+            a = a*a;
+            b/=2;
+        }
+    }
+    return res ;
+}
+```
+
+
+
+### 4.3快速乘(也是二分加速)[leetcode.29两数相除](https://leetcode.cn/problems/divide-two-integers/description/)
+
+<img src="./image-20240708185231076.png" alt="image-20240708185231076" style="zoom: 50%;" />
+
+- #### 思路:
+
+  1. 用二分查找,不断逼近最终的返回值
+  2. 如何逼近返回值 ,用快速乘判断 当前中间指针所指的数是小是大?
+  3. 那么由于二分查找啊的范围是在[1,INT_MAX]之间,(后续会根据情况,调整正负),那么这就需要在正式开始二分查找之前判断好INT_MIN 以及为0 的一些情况;
+
+####    4.3.1 快速乘在本题中的具体实现:
+
+```c++
+public:
+    bool quick_add(int divisor ,int res, int dividend)
+    {
+     // 需要满足divisor *res >= dividend  注意divisor 和dividend都是负数!!!!
+        int add =divisor;
+        int ans =0;
+        while(res  )
+        {
+            if(res & 1 ) //判断res 是否为奇数 
+            {
+                if(ans <dividend-add) return false ;
+                ans += add;
+            }
+            if(res != 1)//注意这里!!!
+            {
+              if(add < dividend-add)　return false ;  //会存在 add*2>dividend的情况
+              add +=add ;
+            }
+            res>>=1; //相当于res/=2  <-> res = res>>1
+        }
+        return true;
+    }
+```
+
+####     4.3.2主体的代码实现
+
+```c++
+public:
+    int divide(int dividend, int divisor) 
+    {
+        //考虑被除数为最小值的情况
+          if (dividend == INT_MIN) {
+            if (divisor == 1) {
+                return INT_MIN;
+            }
+            if (divisor == -1) {
+                return INT_MAX;
+            }
+        }
+        // 考虑除数为最小值的情况
+        if (divisor == INT_MIN) {
+            return dividend == INT_MIN ? 1 : 0;
+        }
+        // 考虑被除数为 0 的情况
+        if (dividend == 0) {
+            return 0;
+        }
+
+        bool if_negative = false ;
+        if(dividend>0)
+         {
+            if_negative = !if_negative;
+            dividend = -dividend;
+        }
+        if(divisor> 0) 
+        {
+            if_negative = !if_negative;
+            divisor = -divisor;
+        }
+
+        int left = 1  , right = INT_MAX;
+        int ans =0 ;
+        while(left<= right)
+        {
+            int mid = left + ((right-left)>>1);
+            if(quick_add(divisor, mid , dividend))
+            {
+                ans = mid;
+                if(mid==INT_MAX) break;
+                left = mid + 1 ;
+            }
+            else right = mid-1;
+        }
+        return (if_negative) ? -ans: ans;
+        
+    }
+```
 
