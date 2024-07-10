@@ -445,3 +445,95 @@ public:
     }
 ```
 
+
+
+## 5.找素数
+
+###    5.1 记录素数的个数  [leetcode.24](https://leetcode.cn/problems/count-primes/description/)
+
+<img src="./image-20240710231755450.png" alt="image-20240710231755450" style="zoom:67%;" />
+
+####  5.1.1 暴力 (从根号n之前开始逐个筛选)
+
+```c++
+class Solution {
+public:
+    bool is_primer(int i )
+    {
+        for(int j = 2 ; j<=sqrt(i);j++)
+        {
+            if(i % j== 0) return false ;
+        }
+        return true ;
+    }
+    int countPrimes(int n) 
+    {
+        int count  =0;
+        if(n<=2 ) return 0 ;
+        for (int i =2 ;i<n ;i++)
+        {
+            if (is_primer(i)) count++;
+        }
+        return count;
+    }
+};
+```
+
+- 一个数如不是质数,则必存在一个因数会小于  sqrt(i) , 因此我们只需要遍历   [2 , sqrt(n) ]即可
+
+  故在is_primer中遍历:
+
+  ```c++
+  for(int j =2 ; j<=sqrt(i);j++)
+  {
+      ....
+  }
+  ```
+
+- #### 问题:
+
+  由于时间复杂度为:
+  $$
+  O(n*\sqrt{n})
+  $$
+  **容易产生超时**:
+
+  ![image-20240710234132240](./image-20240710234132240.png)
+
+####   5.1.2 埃氏筛法
+
+- 埃氏筛法:
+  埃拉托色尼筛选法，简称埃氏筛法， 是针对自然数列中的自然数而实施的，用于求一定范围内的质数。也就是给定整数n，求小于n的所有质数（素数）。
+  埃拉托斯特尼筛法，简称埃氏筛或爱氏筛，是一种由希腊数学家埃拉托斯特尼所提出的一种简单检定素数的算法。要得到自然数n以内的全部素数，必须把不大于根号n的所有素数的倍数剔除，剩下的就是素数。
+
+- 埃氏筛法的基本思想 ：从2开始，将每个质数的倍数都标记成合数，以达到筛选素数的目的。
+
+- 埃氏筛法的缺陷 ：对于一个合数，有可能被筛多次。例如 30 = 215 = 310 = 5*6……（那么如何确保每个合数只被筛选一次呢？我们只要用它的最小质因子来筛选即可）。
+
+```c++
+class Solution {
+public:
+    int countPrimes(int n) 
+    {
+        int count = 0 ; 
+        bool is_primer[n];
+        for(int i = 0 ;i<n;i++)
+        {
+            is_primer[n]=true; //这里不大严谨 0 ,1 就不考虑了 遍历的时候也不会遍历
+        }
+        for(int i = 2 ;i<n ;i++)
+        {
+            if(is_primer[i]) 
+            {
+                count ++ ; //注意2 本身就是质数
+                for(int j = i+i ; j<n;j+=i) //不要写成(int  j =2 ;i<n ;j++)
+                {
+                     is_primer[j] = false ;
+                }
+             }
+        }
+        return count;
+    }
+};
+```
+
