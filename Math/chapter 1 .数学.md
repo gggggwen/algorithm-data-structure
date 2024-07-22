@@ -299,7 +299,7 @@ public:
        {
           //在本题中中间数就是索引
           mid = left+ (right - left)/2 ; //很细节防止爆int
-          if((long long)mid*mid <= x)
+          if((long long)mid*mid <= x) //注意需要类型强转 题目没说不能用长长整形
           {
              ans = mid;//结果暂存
              left = mid+1;
@@ -340,12 +340,10 @@ int b_speed_up(int a ,int b)
     int res =1;
     if(b==0) return 1;
     while(b>0)
-    {
+    {   //实际做题还需要考虑整数溢出的情况
         if(b%2>0) res*= a ;
-        else 
-        {
-            a = a*a;
-            b/=2;
+        a = a*a;
+        b/=2;
         }
     }
     return res ;
