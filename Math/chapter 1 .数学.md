@@ -535,3 +535,47 @@ public:
 };
 ```
 
+
+
+
+
+## 6.二进制与十进制的互相转换
+
+- **十进制转二进制**
+
+```c++
+string turnBinary(int num)
+{	string res ;
+    while(num>0)
+    {
+        if(num%2==0)
+        {
+            res = '0'+res ;
+		}
+        else
+        {
+ 			res = '1'+res ;
+        }
+        num/=2 ;
+ 	}
+ 	return res.empty()? '0': res ;
+}
+```
+
+
+
+- **二进制转十进制**
+
+```c++
+int binaryToDecimal(string binaryStr) {
+    int res =0 ;
+    int base =1 ;
+    for(int i = binaryStr.size()-1 ; i>=0 ; i++)
+    {
+        if(binartStr[i]=='1') res +=base ;
+        base*=2 ;
+ 	}
+    return res ;
+}
+```
+
